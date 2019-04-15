@@ -939,7 +939,7 @@ class SSDMetric(object):
             static_values = self.static_vals
             moving_values = self.moving_vals
 
-        self.delta_field = self.ssd_metric.update_delta_field(static_values,moving_values)
+        self.delta_field = moving_values - static_values
 
         return static_values, moving_values
 
@@ -1399,21 +1399,16 @@ class AffineRegistration(object):
             else:
                 self.options['maxiter'] = max_iter
 
-            if SCIPY_LESS_0_12:
-                # Older versions don't expect value and gradient from
-                # the same function
-                opt = Optimizer(self.metric.distance, self.params0,
-                                method=self.method, jac=self.metric.gradient,
-                                options=self.options)
-            else:
-                opt = Optimizer(self.metric.distance_and_gradient,
+            opt = Optimizer(self.metric.distance_and_gradient,
                                 self.params0,
                                 method=self.method, jac=True,
                                 options=self.options)
             params = opt.xopt
 
+
             # Update starting_affine matrix with optimal parameters
             T = self.transform.param_to_matrix(params)
+
             self.starting_affine = T.dot(self.starting_affine)
 
             # Start next iteration at identity
