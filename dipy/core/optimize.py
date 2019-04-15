@@ -127,7 +127,7 @@ class Optimizer(object):
         self._evol_kx = None
 
         _eps = np.finfo(float).eps
-
+        
         if SCIPY_LESS_0_12:
 
             if evolution is True:
@@ -225,11 +225,12 @@ class Optimizer(object):
                                options=options)
 
             else:
-
+               
                 res = minimize(fun, x0, args, method, jac, hess, hessp, bounds,
                                constraints, tol, callback, options)
 
         self.res = res
+        
 
     @property
     def xopt(self):
