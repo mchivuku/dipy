@@ -1089,7 +1089,6 @@ class SSDMetric(object):
             return np.inf, 0 * self.metric_grad
         return  self.metric_val,  self.metric_grad
 
-
 class AffineRegistration(object):
 
     def __init__(self,
@@ -1391,7 +1390,7 @@ class AffineRegistration(object):
 
             # Optimize this level
             if self.options is None:
-                self.options = {'gtol': 1e-4,
+                self.options = {'gtol': 1,
                                 'disp': False}
 
             if self.method == 'L-BFGS-B':
@@ -1399,16 +1398,21 @@ class AffineRegistration(object):
             else:
                 self.options['maxiter'] = max_iter
 
-            opt = Optimizer(self.metric.distance_and_gradient,
+            if SCIPY_LESS_0_12:
+                # Older versions don't expect value and gradient from
+                # the same function
+                opt = Optimizer(self.metric.distance, self.params0,
+                                method=self.method, jac=self.metric.gradient,
+                                options=self.options)
+            else:
+                opt = Optimizer(self.metric.distance_and_gradient,
                                 self.params0,
                                 method=self.method, jac=True,
                                 options=self.options)
             params = opt.xopt
 
-
             # Update starting_affine matrix with optimal parameters
             T = self.transform.param_to_matrix(params)
-
             self.starting_affine = T.dot(self.starting_affine)
 
             # Start next iteration at identity
@@ -1418,6 +1422,7 @@ class AffineRegistration(object):
         if ret_metric:
             return affine_map, opt.xopt, opt.fopt
         return affine_map
+
 
 
 def align_centers_of_mass(static, static_grid2world,

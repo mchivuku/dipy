@@ -165,7 +165,7 @@ class Optimizer(object):
                     msg += 'parameter is not available for L-BFGS-B. \n Using '
                     msg += '`maxfun` instead with value twice of maxiter.'
 
-                    print(msg)
+
                     out = fmin_l_bfgs_b(fun, x0, fprime=jac, args=args,
                                         approx_grad=approx_grad,
                                         bounds=bounds,
